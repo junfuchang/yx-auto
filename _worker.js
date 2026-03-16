@@ -124,7 +124,7 @@ async function 整理成数组(内容) {
 }
 
 // 请求优选API
-async function 请求优选API(urls, 默认端口 = '443', 超时时间 = 3000) {
+async function 请求优选API(urls, 默认端口 = '8443', 超时时间 = 3000) {
     if (!urls?.length) return [];
     const results = new Set();
     await Promise.allSettled(urls.map(async (url) => {
@@ -259,8 +259,8 @@ async function fetchAndParseNewIPs(piu) {
 function generateLinksFromSource(list, user, workerDomain, disableNonTLS = false, customPath = '/', echConfig = null) {
     const CF_HTTP_PORTS = [80, 8080, 8880, 2052, 2082, 2086, 2095];
     const CF_HTTPS_PORTS = [443, 2053, 2083, 2087, 2096, 8443];
-    const defaultHttpsPorts = [443];
-    const defaultHttpPorts = disableNonTLS ? [] : [80];
+    const defaultHttpsPorts = [8443];
+    const defaultHttpPorts = disableNonTLS ? [] : [8080];
     const links = [];
     const wsPath = customPath || '/';
     const proto = 'vless';
@@ -329,8 +329,8 @@ function generateLinksFromSource(list, user, workerDomain, disableNonTLS = false
 async function generateTrojanLinksFromSource(list, user, workerDomain, disableNonTLS = false, customPath = '/', echConfig = null) {
     const CF_HTTP_PORTS = [80, 8080, 8880, 2052, 2082, 2086, 2095];
     const CF_HTTPS_PORTS = [443, 2053, 2083, 2087, 2096, 8443];
-    const defaultHttpsPorts = [443];
-    const defaultHttpPorts = disableNonTLS ? [] : [80];
+    const defaultHttpsPorts = [8443];
+    const defaultHttpPorts = disableNonTLS ? [] : [8080];
     const links = [];
     const wsPath = customPath || '/';
     const password = user;  // Trojan使用UUID作为密码
@@ -399,8 +399,8 @@ async function generateTrojanLinksFromSource(list, user, workerDomain, disableNo
 function generateVMessLinksFromSource(list, user, workerDomain, disableNonTLS = false, customPath = '/', echConfig = null) {
     const CF_HTTP_PORTS = [80, 8080, 8880, 2052, 2082, 2086, 2095];
     const CF_HTTPS_PORTS = [443, 2053, 2083, 2087, 2096, 8443];
-    const defaultHttpsPorts = [443];
-    const defaultHttpPorts = disableNonTLS ? [] : [80];
+    const defaultHttpsPorts = [8443];
+    const defaultHttpPorts = disableNonTLS ? [] : [8080];
     const links = [];
     const wsPath = customPath || '/';
 
@@ -559,7 +559,7 @@ async function handleSubscriptionRequest(request, user, customDomain, piu, ipv4E
 
                         if (match) {
                             const 节点地址 = match[1].replace(/[\[\]]/g, ''); // 移除IPv6的方括号
-                            const 节点端口 = match[2] || 443;
+                            const 节点端口 = match[2] || 8443;
                             const 节点备注 = match[3] || 节点地址;
                             return {
                                 ip: 节点地址,
@@ -608,7 +608,7 @@ async function handleSubscriptionRequest(request, user, customDomain, piu, ipv4E
 
                         if (match) {
                             const 节点地址 = match[1].replace(/[\[\]]/g, '');
-                            const 节点端口 = match[2] || 443;
+                            const 节点端口 = match[2] || 8443;
                             const 节点备注 = match[3] || 节点地址;
                             return {
                                 ip: 节点地址,
@@ -647,7 +647,7 @@ async function handleSubscriptionRequest(request, user, customDomain, piu, ipv4E
 
     if (finalLinks.length === 0) {
         const errorRemark = "所有节点获取失败";
-        const errorLink = `vless://00000000-0000-0000-0000-000000000000@127.0.0.1:80?encryption=none&security=none&type=ws&host=error.com&path=%2F#${encodeURIComponent(errorRemark)}`;
+        const errorLink = `vless://00000000-0000-0000-0000-000000000000@127.0.0.1:8080?encryption=none&security=none&type=ws&host=error.com&path=%2F#${encodeURIComponent(errorRemark)}`;
         finalLinks.push(errorLink);
     }
 
@@ -696,7 +696,7 @@ function generateClashConfig(links) {
         const name = decodeURIComponent(link.split('#')[1] || `节点${index + 1}`);
         proxyNames.push(name);
         const server = link.match(/@([^:]+):(\d+)/)?.[1] || '';
-        const port = link.match(/@[^:]+:(\d+)/)?.[1] || '443';
+        const port = link.match(/@[^:]+:(\d+)/)?.[1] || '8443';
         const uuid = link.match(/vless:\/\/([^@]+)@/)?.[1] || '';
         const tls = link.includes('security=tls');
         const path = link.match(/path=([^&#]+)/)?.[1] || '/';
@@ -744,7 +744,7 @@ function generateSurgeConfig(links) {
     let config = '[Proxy]\n';
     links.forEach(link => {
         const name = decodeURIComponent(link.split('#')[1] || '节点');
-        config += `${name} = vless, ${link.match(/@([^:]+):(\d+)/)?.[1] || ''}, ${link.match(/@[^:]+:(\d+)/)?.[1] || '443'}, username=${link.match(/vless:\/\/([^@]+)@/)?.[1] || ''}, tls=${link.includes('security=tls')}, ws=true, ws-path=${link.match(/path=([^&#]+)/)?.[1] || '/'}, ws-headers=Host:${link.match(/host=([^&#]+)/)?.[1] || ''}\n`;
+        config += `${name} = vless, ${link.match(/@([^:]+):(\d+)/)?.[1] || ''}, ${link.match(/@[^:]+:(\d+)/)?.[1] || '8443'}, username=${link.match(/vless:\/\/([^@]+)@/)?.[1] || ''}, tls=${link.includes('security=tls')}, ws=true, ws-path=${link.match(/path=([^&#]+)/)?.[1] || '/'}, ws-headers=Host:${link.match(/host=([^&#]+)/)?.[1] || ''}\n`;
     });
     config += '\n[Proxy Group]\nPROXY = select, ' + links.map((_, i) => decodeURIComponent(links[i].split('#')[1] || `节点${i + 1}`)).join(', ') + '\n';
     return config;
